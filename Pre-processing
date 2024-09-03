@@ -1,0 +1,33 @@
+Each tweet in the file (named usnewshealth.txt) has attributes such as unique code number, time & date, url etc. To enable clustering we ill first need to remove thee excessive attributes. Also, some unique characters and
+symbols are not contributing to the clustering and the meaning of the sentences so they are better to be removed.
+
+from typing_extensions import Text
+import re
+import random
+import pandas as pd
+
+# Step 1: Load the file
+file_path = 'usnewshealth.txt'
+
+with open(file_path, 'r', encoding='utf-8') as file:
+    lines = file.readlines()
+
+# Step 2: Remove tweet ID and timestamp
+tweets = [line.split('|')[-1].strip() for line in lines]
+
+# Steps 3 to 6: Further preprocessing
+def preprocess_tweet(tweet):
+    # Remove @mentions
+    tweet = re.sub(r'@\w+', '', tweet)
+    # Remove URLS
+    tweet = re.sub(r'http\S+', '', tweet)
+    # Remove hashtag symbols
+    tweet = tweet.replace('#', '')
+    # Convert to lowercase
+    return tweet.lower()
+
+# Apply the preprocessing function to each tweet
+preprocessed_tweets = [preprocess_tweet(tweet) for tweet in tweets]
+
+# Return the first 5 preprocessed tweets as a sample to check the preprocessing
+preprocessed_tweets[:5]
