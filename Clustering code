@@ -1,1 +1,84 @@
+import random
+import numpy as np
+
+# Define Jaccard Distance Function
+def jaccard_distance(set1, set2):
+    intersection = len(set1.intersection(set2))
+    union = len(set1.union(set2))
+    return 1 - intersection / union
+
+# Choose Initial Centroids
+def choose_initial_centroids(tweets, k):
+    return random.sample(tweets, k)
+
+# Assign Tweets to Clusters
+def assign_to_clusters(tweets, centroids):
+    clusters = [[] for _ in centroids]
+    for tweet in tweets:
+        distances = [jaccard_distance(tweet, centroid) for centroid in centroids]
+        closest_centroid_index = np.argmin(distances)
+        clusters[closest_centroid_index].append(tweet)
+    return clusters
+
+# Update Centroids
+def update_centroids(clusters):
+    new_centroids = []
+    for cluster in clusters:
+        min_dist = float('inf')
+        for tweet in cluster:
+            total_dist = sum(jaccard_distance(tweet, other_tweet) for other_tweet in cluster)
+            if total_dist < min_dist:
+                min_dist = total_dist
+                best_centroid = tweet
+        new_centroids.append(best_centroid)
+    return new_centroids
+
+# Calculate Sum of Squared Errors
+def calculate_sse(clusters, centroids):
+    sse = 0
+    for idx, cluster in enumerate(clusters):
+        centroid = centroids[idx]
+        for tweet in cluster:
+            distance = jaccard_distance(tweet, centroid)
+            sse += distance ** 2
+    return sse
+
+# Perform K-means Clustering for Various K
+def k_means_clustering_for_various_k(tweets, k_values):
+    report = []
+    for k in k_values:
+        # Tokenize tweets into sets of words
+        tokenized_tweets = [set(tweet.split()) for tweet in tweets]
+        # Randomly choose initial centroids
+        centroids = choose_initial_centroids(tokenized_tweets, k)
+        # Iterate to assign tweets to clusters and update centroids
+        for _ in range(100):
+            clusters = assign_to_clusters(tokenized_tweets, centroids)
+            new_centroids = update_centroids(clusters)
+            if new_centroids == centroids:
+                break
+            centroids = new_centroids
+        # Calculate SSE
+        sse = calculate_sse(clusters, centroids)
+        # Record the results
+        report.append((k, sse, [len(cluster) for cluster in clusters]))
+    return report
+
+# Preprocessed tweets are expected to be loaded here
+# Assuming 'preprocessed_tweets' is a list of preprocessed tweet texts
+
+# Define the range of K to test
+k_values_to_test = [2, 4, 6, 8, 10]
+
+# Run K-means clustering and collect the report
+clustering_report = k_means_clustering_for_various_k(preprocessed_tweets, k_values_to_test)
+
+# Print the results in the desired format
+for k, sse, cluster_sizes in clustering_report:
+    print(f"Value of K: {k}")
+    print(f"SSE: {sse}")
+    print("Size of each cluster:")
+    for idx, size in enumerate(cluster_sizes):
+        print(f"{idx + 1}: {size} tweets")
+    print("\n" + "-" * 30 + "\n")
 
