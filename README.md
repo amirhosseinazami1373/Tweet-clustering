@@ -4,3 +4,8 @@
 </h1>
 
 Cluster tweets using the Jaccard Distance metric and the K-means clustering algorithm. This approach groups similar tweets together, which is useful for applications like trend analysis and content organization on Twitter.
+
+The data is accessible through the link below: 
+
+https://archive.ics.uci.edu/dataset/438/health+news+in+twitter
+
